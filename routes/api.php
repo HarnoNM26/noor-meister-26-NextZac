@@ -6,7 +6,7 @@ use Laravel\Fortify\Features;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\Models\EnergyReading;
-
+use Carbon\Carbon;
 
 
 Route::prefix('api')->group(function () {
@@ -31,10 +31,10 @@ Route::prefix('api')->group(function () {
             $start = $req->all()["start"];
         }
         if(array_key_exists("end", $req->all())) {
-            $start = $req->all()["end"];
+            $end = $req->all()["end"];
         }
 
-        $entries = EnergyReading::whereBetween('created_at', [$start ?? "2000-01-01T00:00:00Z", $end ?? "2999-01-01T00:00:00Z"])->get();
+        $entries = EnergyReading::whereBetween('created_at', [$start ? new Carbon($start) : "2000-01-01T00:00:00Z", $end ? new Carbon($end) : "2999-01-01T00:00:00Z"])->get();
         return response()->json(["status" => "ok", "entries" => $entries]);
     });
 });
