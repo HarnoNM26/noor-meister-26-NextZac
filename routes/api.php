@@ -17,4 +17,7 @@ Route::prefix('api')->group(function () {
         }
         return response()->json(["status" => "ok", "db" => "ok"]);
     });
+    Route::get('/readings', function (Request $req) {
+        dd($req->all());
+    });
 });
