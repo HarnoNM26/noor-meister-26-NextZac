@@ -19,9 +19,22 @@ Route::prefix('api')->group(function () {
         return response()->json(["status" => "ok", "db" => "ok"]);
     });
     Route::get('/readings', function (Request $req) {
+
+        $validator = Validator::make($req->all(), ["start" => "date|date_format:Y-m-d\TH:i:sp", "end" => "date|date_format:Y-m-d\TH:i:sp"]);
+        if($validator->fails()) {
+            return response()->json(["status" => "fail", "message" => $validator->errors()]);
+        }
         if(!array_key_exists("location", $req->all())) {
             return response()->json(["status" => "fail", "message" => "Location is a mandatory field."]);
         }
-        return response()->json(["status" => "ok", "entries" => EnergyReading::whereBetween('created_at', [array_key_exists("start", $req->all()) ? $req->all()["start"] : "2000-01-01T00:00:00Z", array_key_exists("end", $req->all()) ? $req->all()["end"] : "2999-01-01T00:00:00Z"])->get()]);
+        if(array_key_exists("start", $req->all())) {
+            $start = $req->all()["start"];
+        }
+        if(array_key_exists("end", $req->all())) {
+            $start = $req->all()["end"];
+        }
+
+        $entries = EnergyReading::whereBetween('created_at', [$start ?? "2000-01-01T00:00:00Z", $end ?? "2999-01-01T00:00:00Z"])->get();
+        return response()->json(["status" => "ok", "entries" => $entries]);
     });
 });
