@@ -40,10 +40,12 @@ const sendForm = async () => {
        for (const [key, value] of Object.entries(erresp.data)) {
         if(key == 'start') {
             errors.value.start = value;
+            message.value = "";
             console.log(errors.value);
         }
         if(key == 'end') {
             errors.value.end = value;
+            message.value = "";
         }
         processing.value = false;
         }   
@@ -68,7 +70,7 @@ const sendForm = async () => {
                     <Label for="start">Start</Label>
                     <Input
                         id="start"
-                        type="datetime"
+                        type="datetime-local"
                         autofocus
                         :tabindex="1"
                         autocomplete="name"
@@ -84,7 +86,7 @@ const sendForm = async () => {
                     <Label for="email">End</Label>
                     <Input
                         id="end"
-                        type="datetime"
+                        type="datetime-local"
                         autofocus
                         :tabindex="1"
                         autocomplete="name"
