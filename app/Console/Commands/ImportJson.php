@@ -66,6 +66,7 @@ class ImportJson extends Command
             $energy_entry->price_eur_mwh = $entry_array["price_eur_mwh"];
             $energy_entry->source = "UPLOAD";
             $energy_entry->save();
+            $this->info("Successfully added entry");
         }
     }
 }
