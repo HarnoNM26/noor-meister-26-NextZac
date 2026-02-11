@@ -20,7 +20,7 @@ Route::prefix('api')->group(function () {
     });
     Route::get('/readings', function (Request $req) {
 
-        $validator = Validator::make($req->all(), ["start" => "date|date_format:Y-m-d\TH:i:sp", "end" => "date|date_format:Y-m-d\TH:i:sp"]);
+        $validator = Validator::make($req->all(), ["start" => "date|date_format:Y-m-d\TH:i:sp", "end" => "date|date_format:Y-m-d\TH:i:sp", "location" => "required|in:EE,LV,FI"]);
         if($validator->fails()) {
             return response()->json(["status" => "fail", "message" => $validator->errors()]);
         }
@@ -34,7 +34,7 @@ Route::prefix('api')->group(function () {
             $end = $req->all()["end"];
         }
 
-        $entries = EnergyReading::whereBetween('created_at', [$start ? new Carbon($start) : "2000-01-01T00:00:00Z", $end ? new Carbon($end) : "2999-01-01T00:00:00Z"])->get();
+        $entries = EnergyReading::whereBetween('created_at', [$start ? new Carbon($start) : "2000-01-01T00:00:00Z", $end ? new Carbon($end) : "2999-01-01T00:00:00Z"])->where('location', $req->all()["location"])->get();
         return response()->json(["status" => "ok", "entries" => $entries]);
     });
 });
