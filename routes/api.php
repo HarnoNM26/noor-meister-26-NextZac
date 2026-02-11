@@ -38,7 +38,7 @@ Route::prefix('api')->group(function () {
     });
     Route::post('/sync/prices', function(Request $req) {
         $args = (array) $req->all();
-        $validator = Validator::make($args, ["start" => "date|date_format:Y-m-d\TH:i:sp|nullable", "end" => "date|date_format:Y-m-d\TH:i:sp|nullable",]);
+        $validator = Validator::make($args, ["start" => "date|date_format:Y-m-d\TH:i:s\.vp|nullable", "end" => "date|date_format:Y-m-d\TH:i:s\.vp|nullable",]);
         $start = new Carbon()->startOfDay()->format("Y-m-d\TH:i:sp");
         $end = new Carbon()->startOfDay()->modify("+1 day -1 microsecond")->format("Y-m-d\TH:i:sp");
         if(array_key_exists("start", $req->all())) {

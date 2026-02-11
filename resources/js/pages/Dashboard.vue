@@ -19,6 +19,10 @@ const start = ref(date.toISOString());
 const end = ref(date.toISOString());
 const message = ref("");
 const processing = ref(false);
+const errors = ref({
+    start: "",
+    end: ""
+})
 const sendForm = async () => {
      const data = {
         location: location.value,
@@ -28,10 +32,16 @@ const sendForm = async () => {
     await axios.post("/api/sync/prices", data).then(response => {
         message.value = "Successsfully synced with Elering API"
     }).catch((e) => {
-        console.log(e.data);
-        for(const a of e.response) {
-            console.log(a);
+        const erresp = e.response;
+       for (const [key, value] of Object.entries(erresp.data)) {
+        if(key == 'start') {
+            errors.value.start = value;
+            console.log(errors.value);
         }
+        if(key == 'end') {
+            errors.value.end = value;
+        }
+        }   
     });
 }
 
@@ -53,7 +63,7 @@ const sendForm = async () => {
                     <Label for="start">Start</Label>
                     <Input
                         id="start"
-                        type="datetime-local"
+                        type="datetime"
                         autofocus
                         :tabindex="1"
                         autocomplete="name"
@@ -62,13 +72,14 @@ const sendForm = async () => {
                         :value="start"
                         @input="start = $event.target.value"
                     />
+                    <h2 v-html="errors.start" class="mt-2" ></h2>
                 </div>
 
                 <div class="grid gap-2">
                     <Label for="email">End</Label>
                     <Input
                         id="end"
-                        type="datetime-local"
+                        type="datetime"
                         autofocus
                         :tabindex="1"
                         autocomplete="name"
@@ -77,6 +88,7 @@ const sendForm = async () => {
                         :value="end"
                         @input="end = $event.target.value"
                     />
+                    <h2 v-html="errors.end" class="mt-2" ></h2>
                 </div>
 
                 <div class="grid gap-2">
@@ -99,7 +111,7 @@ const sendForm = async () => {
                     <Spinner v-if="processing" />
                     Sync
                 </Button>
-                <h2>{{ message }}</h2>
+                <h2 v-html="message"></h2>
             </div>
         </div>
     </AppLayout>
