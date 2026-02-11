@@ -36,9 +36,9 @@ Route::prefix('api')->group(function () {
         $entries = EnergyReading::whereBetween('created_at', [$start ? new Carbon($start) : "2000-01-01T00:00:00Z", $end ? new Carbon($end) : "2999-01-01T00:00:00Z"])->where('location', $req->all()["location"])->get();
         return response()->json(["status" => "ok", "entries" => $entries]);
     });
-    Route::get('/sync/prices', function(Request $req) {
+    Route::post('/sync/prices', function(Request $req) {
         $args = (array) $req->all();
-        $validator = Validator::make($args, ["start" => "date|date_format:Y-m-d\TH:i:sp", "end" => "date|date_format:Y-m-d\TH:i:sp",]);
+        $validator = Validator::make($args, ["start" => "date|date_format:Y-m-d\TH:i:sp|nullable", "end" => "date|date_format:Y-m-d\TH:i:sp|nullable",]);
         $start = new Carbon()->startOfDay()->format("Y-m-d\TH:i:sp");
         $end = new Carbon()->startOfDay()->modify("+1 day -1 microsecond")->format("Y-m-d\TH:i:sp");
         if(array_key_exists("start", $req->all())) {
@@ -48,7 +48,7 @@ Route::prefix('api')->group(function () {
             $end = $args["end"];
         }
         if($validator->fails()) {
-            return response()->json($validator->errors());
+            return response()->json($validator->errors(), 422);
         }
         try {
         $json = json_decode(file_get_contents("https://dashboard.elering.ee/api/nps/price?start={$start}&end={$end}"));

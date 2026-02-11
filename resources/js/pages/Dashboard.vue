@@ -1,7 +1,9 @@
 <script setup lang="ts">
-import { Head } from '@inertiajs/vue3';
+import { Head, Form, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
+import {ref} from 'vue';
+import axios from 'axios';
 import { type BreadcrumbItem } from '@/types';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
 
@@ -11,6 +13,28 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: dashboard().url,
     },
 ];
+const date = new Date()
+const location = ref('EE');
+const start = ref(date.toISOString());
+const end = ref(date.toISOString());
+const message = ref("");
+const processing = ref(false);
+const sendForm = async () => {
+     const data = {
+        location: location.value,
+        start: start.value,
+        end: end.value
+     }
+    await axios.post("/api/sync/prices", data).then(response => {
+        message.value = "Successsfully synced with Elering API"
+    }).catch((e) => {
+        console.log(e.data);
+        for(const a of e.response) {
+            console.log(a);
+        }
+    });
+}
+
 </script>
 
 <template>
@@ -20,27 +44,62 @@ const breadcrumbs: BreadcrumbItem[] = [
         <div
             class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
         >
-            <div class="grid auto-rows-min gap-4 md:grid-cols-3">
+        <h1>Elering API Sync</h1>
                 <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
+                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border p-6"
                 >
-                    <PlaceholderPattern />
+            <div class="grid gap-6">
+                <div class="grid gap-2">
+                    <Label for="start">Start</Label>
+                    <Input
+                        id="start"
+                        type="datetime-local"
+                        autofocus
+                        :tabindex="1"
+                        autocomplete="name"
+                        name="start"
+                        placeholder="Start Date"
+                        :value="start"
+                        @input="start = $event.target.value"
+                    />
                 </div>
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
+
+                <div class="grid gap-2">
+                    <Label for="email">End</Label>
+                    <Input
+                        id="end"
+                        type="datetime-local"
+                        autofocus
+                        :tabindex="1"
+                        autocomplete="name"
+                        name="end"
+                        placeholder="End Date"
+                        :value="end"
+                        @input="end = $event.target.value"
+                    />
                 </div>
-                <div
-                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border"
-                >
-                    <PlaceholderPattern />
+
+                <div class="grid gap-2">
+                    <Label for="location">Location</Label>
+                    <select name="location" id="location" v-model="location">
+                        <option value="EE">EE</option>
+                        <option value="LV">LV</option>
+                        <option value="FI">FI</option>
+                    </select>
                 </div>
             </div>
-            <div
-                class="relative min-h-[100vh] flex-1 rounded-xl border border-sidebar-border/70 md:min-h-min dark:border-sidebar-border"
-            >
-                <PlaceholderPattern />
+        <Button
+                    type="submit"
+                    class="mt-2 w-full border border-black"
+                    tabindex="5"
+                    :disabled="processing"
+                    data-test="register-user-button"
+                    @click="sendForm"
+                >
+                    <Spinner v-if="processing" />
+                    Sync
+                </Button>
+                <h2>{{ message }}</h2>
             </div>
         </div>
     </AppLayout>
