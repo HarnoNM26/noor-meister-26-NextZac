@@ -43,7 +43,7 @@ class ImportJson extends Command
                 $entry_array["location"] = "EE";
                 $this->info("Location invalid, changing to EE");
             }
-            $validator = Validator::make($entry_array, ["timestamp" => "date|date_format:Y-m-d\TH:i:sp"]);
+            $validator = Validator::make($entry_array, ["timestamp" => "date|date_format:Y-m-d\TH:i:sp", "location" => "in:EE,LV,FI"]);
 
             if($validator->fails())
             {   
