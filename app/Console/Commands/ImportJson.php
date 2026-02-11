@@ -28,7 +28,13 @@ class ImportJson extends Command
      */
     public function handle()
     {
-        $json = json_decode(file_get_contents($this->argument("file"), true));
+        try {
+            $json = json_decode(file_get_contents($this->argument("file"), true));
+        } catch(Exception $e)
+        {
+            $this->error($e);
+        }
+        
         foreach($json as $entry) {
             // Invalid Timestamp == Skip Record
             // Missing Location == EE
