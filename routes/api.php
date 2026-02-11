@@ -38,14 +38,14 @@ Route::prefix('api')->group(function () {
     });
     Route::post('/sync/prices', function(Request $req) {
         $args = (array) $req->all();
-        $validator = Validator::make($args, ["start" => "date|date_format:Y-m-d\TH:i|nullable", "end" => "date|date_format:Y-m-d\TH:i|nullable",]);
+        $validator = Validator::make($args, ["start" => "date|nullable", "end" => "date|nullable",]);
         $start = new Carbon()->startOfDay()->format("Y-m-d\TH:i:sp");
         $end = new Carbon()->startOfDay()->modify("+1 day -1 microsecond")->format("Y-m-d\TH:i:sp");
         if(array_key_exists("start", $req->all())) {
-            $start = $args["start"];
+            $start = new Carbon($args["start"])->format("Y-m-d\TH:i:sp");
         }
         if(array_key_exists("end", $req->all())) {
-            $end = $args["end"];
+            $end =  new Carbon($args["end"])->format("Y-m-d\TH:i:sp");
         }
         if($validator->fails()) {
             return response()->json($validator->errors(), 422);

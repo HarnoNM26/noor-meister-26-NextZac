@@ -33,7 +33,15 @@ const sendForm = async () => {
         end: end.value
      }
     await axios.post("/api/sync/prices", data).then(response => {
-        message.value = "Successsfully synced with Elering API"
+        for (const [key, value] of Object.entries(response.data)) {
+            if(key == "error") {
+                 message.value = "Price API Unavailable";
+            }
+            if(key=="message") {
+                message.value = "Successsfully synced with Elering API - " + value
+            }
+        }
+        
         processing.value = false;
     }).catch((e) => {
         const erresp = e.response;
