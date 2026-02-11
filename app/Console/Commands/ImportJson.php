@@ -57,7 +57,7 @@ class ImportJson extends Command
                 $msg = "Duplicate Found, skipping.";
             }
             if($msg != null) {
-                $this->info($msg);
+                $this->warn($msg);
                 continue;
             }
             $energy_entry = new EnergyReading;
