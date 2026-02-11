@@ -6,6 +6,8 @@ import {ref} from 'vue';
 import axios from 'axios';
 import { type BreadcrumbItem } from '@/types';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
+import { Button } from '@/components/ui/button';
+import { Spinner } from '@/components/ui/spinner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -24,6 +26,7 @@ const errors = ref({
     end: ""
 })
 const sendForm = async () => {
+    processing.value = true;
      const data = {
         location: location.value,
         start: start.value,
@@ -31,6 +34,7 @@ const sendForm = async () => {
      }
     await axios.post("/api/sync/prices", data).then(response => {
         message.value = "Successsfully synced with Elering API"
+        processing.value = false;
     }).catch((e) => {
         const erresp = e.response;
        for (const [key, value] of Object.entries(erresp.data)) {
@@ -41,6 +45,7 @@ const sendForm = async () => {
         if(key == 'end') {
             errors.value.end = value;
         }
+        processing.value = false;
         }   
     });
 }
