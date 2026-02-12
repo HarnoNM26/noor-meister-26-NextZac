@@ -17,16 +17,62 @@ import VChart, { THEME_KEY } from "vue-echarts";
 
 use([CanvasRenderer, LineChart, TitleComponent, TooltipComponent, LegendComponent, GridComponent]);
 const data = []
+const data2 = []
+const data3 = []
 
-const props = defineProps({daily: Object})
+const props = defineProps({daily: Object, location: Object, date: Object})
 for (const [key, value] of Object.entries(props.daily)) {
     const date = new Date(value.created_at)
     date.setMinutes(date.getMinutes() + 10)
     data.push({"start": value.created_at, "end": date.toISOString(), price: value.price_eur_mwh})
 }
-console.log(data)
+for (const [key, value] of Object.entries(props.location)) {
+    const date = new Date(value.created_at)
+    date.setMinutes(date.getMinutes() + 10)
+    data2.push({"start": value.created_at, "end": date.toISOString(), price: value.price_eur_mwh})
+}
+for (const [key, value] of Object.entries(props.date)) {
+    const date = new Date(value.created_at)
+    date.setMinutes(date.getMinutes() + 10)
+    data3.push({"start": value.created_at, "end": date.toISOString(), price: value.price_eur_mwh})
+}
+console.log(data2)
 
 const seriesList = data.map(function(event) {
+  let start = event.start;
+  let end = event.end;
+  let value = event.price;
+  if (event.end === null) {
+    end = start;  // set end to current time here?
+  }
+  return {
+    type: 'line',
+    data: [[start, value], [end, value]],
+    symbol: 'none',
+    lineStyle: {
+      width: 60
+    }
+  };
+})
+
+const seriesList2 = data2.map(function(event) {
+  let start = event.start;
+  let end = event.end;
+  let value = event.price;
+  if (event.end === null) {
+    end = start;  // set end to current time here?
+  }
+  return {
+    type: 'line',
+    data: [[start, value], [end, value]],
+    symbol: 'none',
+    lineStyle: {
+      width: 60
+    }
+  };
+})
+
+const seriesList3 = data3.map(function(event) {
   let start = event.start;
   let end = event.end;
   let value = event.price;
@@ -53,6 +99,28 @@ const option = ref({
   },
   series: seriesList
 });
+
+const option2 = ref({
+  xAxis: {
+    type: 'time',
+  },
+  yAxis: {
+    type: 'value',
+    show: true,
+  },
+  series: seriesList2
+});
+const option3 = ref({
+  xAxis: {
+    type: 'time',
+  },
+  yAxis: {
+    type: 'value',
+    show: true,
+  },
+  series: seriesList3
+});
+
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -141,7 +209,7 @@ window.location.href = `/?start=${start}&end=${end}`
                     <Spinner v-if="processing" />
                     Sync
                 </Button>
-                <VChart class="chart" :option="option" />
+                <VChart class="chart" :option="option2" />
             </div>
              <div
                     class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border p-6"
@@ -168,7 +236,7 @@ window.location.href = `/?start=${start}&end=${end}`
                     <Spinner v-if="processing" />
                     Sync
                 </Button>
-                <VChart class="chart" :option="option" />
+                <VChart class="chart" :option="option3" />
             </div>
             
         </div>
