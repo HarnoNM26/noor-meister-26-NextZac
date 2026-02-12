@@ -8,6 +8,10 @@ import { type BreadcrumbItem } from '@/types';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
+import { DoughnutChart } from 'vue-chart-3';
+import { Chart, registerables } from 'chart.js';
+
+Chart.register(...registerables);
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -15,6 +19,27 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: dashboard().url,
     },
 ];
+
+const testData = {
+      labels: ['Paris', 'Nîmes', 'Toulon', 'Perpignan', 'Autre'],
+      datasets: [
+        {
+          data: [30, 40, 60, 70, 5],
+          backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
+        },
+      ],
+    };
+
+const chartOptions = ref({
+  responsive: true,
+  maintainAspectRatio: true,
+  plugins: {
+    legend: {
+      display: false,
+    },
+  },
+});
+
 const date = new Date()
 const location = ref('EE');
 const start = ref(null);
@@ -105,6 +130,7 @@ const sendForm = async () => {
                     <h2 v-html="errors.end" class="mt-2" ></h2>
                 </div>
                 </div>
+                <DoughnutChart :chartData="testData" />
             </div>
         </div>
     </AppLayout>
