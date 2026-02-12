@@ -17,8 +17,8 @@ const breadcrumbs: BreadcrumbItem[] = [
 ];
 const date = new Date()
 const location = ref('EE');
-const start = ref(date.toISOString());
-const end = ref(date.toISOString());
+const start = ref(null);
+const end = ref(null);
 const message = ref("");
 const processing = ref(false);
 const errors = ref({

@@ -51,6 +51,7 @@ Route::prefix('api')->group(function () {
             return response()->json($validator->errors(), 422);
         }
         try {
+            dd($start, $end);
         $json = json_decode(file_get_contents("https://dashboard.elering.ee/api/nps/price?start={$start}&end={$end}"));
         } catch(Exception $e) {
            return response()->json(["error" => "PRICE_API_UNAVAILABLE"]);
