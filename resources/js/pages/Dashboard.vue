@@ -36,7 +36,7 @@ for (const [key, value] of Object.entries(props.date)) {
     date.setMinutes(date.getMinutes() + 10)
     data3.push({"start": value.created_at, "end": date.toISOString(), price: value.price_eur_mwh})
 }
-console.log(data2)
+console.log(props.location)
 
 const seriesList = data.map(function(event) {
   let start = event.start;
@@ -209,7 +209,7 @@ window.location.href = `/?start=${start}&end=${end}`
                     <Spinner v-if="processing" />
                     Sync
                 </Button>
-                <VChart class="chart" :option="option2" />
+                <VChart class="chart" :option="option3" />
             </div>
              <div
                     class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border p-6"
@@ -236,7 +236,7 @@ window.location.href = `/?start=${start}&end=${end}`
                     <Spinner v-if="processing" />
                     Sync
                 </Button>
-                <VChart class="chart" :option="option3" />
+                <VChart class="chart" :option="option2" />
             </div>
             
         </div>
