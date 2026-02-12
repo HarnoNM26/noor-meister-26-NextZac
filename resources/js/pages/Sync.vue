@@ -11,7 +11,7 @@ import { Spinner } from '@/components/ui/spinner';
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
-        title: 'Dashboard',
+        title: 'Sync',
         href: dashboard().url,
     },
 ];
@@ -73,8 +73,8 @@ const sendForm = async () => {
                 <div
                     class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border p-6"
                 >
-                <div class="grid grid-cols-2 gap-2">
-                <div >
+            <div class="grid gap-6">
+                <div class="grid gap-2">
                     <Label for="start">Start</Label>
                     <Input
                         id="start"
@@ -89,7 +89,8 @@ const sendForm = async () => {
                     />
                     <h2 v-html="errors.start" class="mt-2" ></h2>
                 </div>
-                <div>
+
+                <div class="grid gap-2">
                     <Label for="email">End</Label>
                     <Input
                         id="end"
@@ -104,7 +105,28 @@ const sendForm = async () => {
                     />
                     <h2 v-html="errors.end" class="mt-2" ></h2>
                 </div>
+
+                <div class="grid gap-2">
+                    <Label for="location">Location</Label>
+                    <select name="location" id="location" v-model="location">
+                        <option value="EE">EE</option>
+                        <option value="LV">LV</option>
+                        <option value="FI">FI</option>
+                    </select>
                 </div>
+            </div>
+        <Button
+                    type="submit"
+                    class="mt-2 w-full border border-black"
+                    tabindex="5"
+                    :disabled="processing"
+                    data-test="register-user-button"
+                    @click="sendForm"
+                >
+                    <Spinner v-if="processing" />
+                    Sync
+                </Button>
+                <h2 v-html="message"></h2>
             </div>
         </div>
     </AppLayout>

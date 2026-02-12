@@ -10,6 +10,10 @@ Route::get('/', function (Request $req) {
     return Inertia::render('Dashboard');
 })->name('dashboard');
 
+Route::get('/sync', function (Request $req) {
+    return Inertia::render('Sync');
+})->name('sync');
+
 Route::get('/status', function() {
     return Inertia::render('modulea');
 })->name('status');

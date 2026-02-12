@@ -23,6 +23,11 @@ const mainNavItems: NavItem[] = [
         href: dashboard(),
         icon: LayoutGrid,
     },
+    {
+        title: 'Sync',
+        href: "/sync",
+        icon: LayoutGrid,
+    },
 ];
 
 const footerNavItems: NavItem[] = [
