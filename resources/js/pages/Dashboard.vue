@@ -142,7 +142,9 @@ const changeLocation = () => {
 window.location.href = `/?location=${location.value}`
 }
 const changeDate = (start, end) => {
-window.location.href = `/?start=${start}&end=${end}`
+    const startiso = new Date(start).toISOString();
+    const endiso = new Date(end).toISOString();
+window.location.href = `/?start=${startiso}&end=${endiso}`
 }
 
 </script>

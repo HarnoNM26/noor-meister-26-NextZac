@@ -9,6 +9,10 @@ use Carbon\Carbon;
 
 Route::get('/', function (Request $req) {
     $given = $req->all();
+    $validator = Validator::make($req->all(), ["start" => "date|date_format:Y-m-d\TH:i:s.vp", "end" => "date|date_format:Y-m-d\TH:i:s.vp|after:start", "location" => "nullable|in:EE,LV,FI"]);
+    if($validator->fails()) {
+        return response()->json(["status" => "fail", "message" => $validator->errors()]);
+    }
     $start = new Carbon()->startOfDay()->format("Y-m-d\TH:i:sp");
     $end = new Carbon()->startOfDay()->modify("+1 day -1 microsecond")->format("Y-m-d\TH:i:sp");
     if(array_key_exists("location", $given)) {
