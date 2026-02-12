@@ -20,7 +20,9 @@ const location = ref('EE');
 const start = ref(null);
 const end = ref(null);
 const message = ref("");
+const message_delete = ref("");
 const processing = ref(false);
+const processing_delete = ref(false);
 const errors = ref({
     start: "",
     end: ""
@@ -56,6 +58,27 @@ const sendForm = async () => {
             message.value = "";
         }
         processing.value = false;
+        }   
+    });
+}
+
+const deleteData = async () => {
+    processing_delete.value = true;
+    await axios.delete("/api/readings").then(response => {
+        for (const [key, value] of Object.entries(response.data)) {
+            if(key == "error") {
+                 message_delete.value = value;
+            }
+            if(key=="message") {
+                message_delete.value = value;
+            }
+        }
+        
+        processing_delete.value = false;
+    }).catch((e) => {
+        const erresp = e.response;
+       for (const [key, value] of Object.entries(erresp.data)) {
+        processing_delete.value = false;
         }   
     });
 }
@@ -128,6 +151,30 @@ const sendForm = async () => {
                 </Button>
                 <h2 v-html="message"></h2>
             </div>
+             <div
+            class="flex h-full flex-1 flex-col gap-4 overflow-x-auto rounded-xl p-4"
+        >
+        <h2>Json Upload Deletion</h2>
+        <div
+                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border p-6"
+                >
+                
+            <div class="grid gap-6">
+                <Button
+                    type="submit"
+                    class="mt-2 w-full border border-black"
+                    tabindex="5"
+                    :disabled="processing_delete"
+                    data-test="register-user-button"
+                    @click="deleteData"
+                >
+                    <Spinner v-if="processing_delete" />
+                    Delete UPLOAD data
+                </Button>
+                <h2 v-html="message_delete"></h2>
+                </div></div>
         </div>
+        </div>
+        
     </AppLayout>
 </template>

@@ -75,4 +75,17 @@ Route::prefix('api')->group(function () {
         }
         return response()->json(["success" => "ok", "message" => "Added {$count} entries. Duplicates {$duplicate_count}"]);
     });
+    Route::delete('/readings', function() {
+        $all_data = EnergyReading::where('source', "UPLOAD")->get();
+        $count = $all_data->count();
+        // try{
+            if($count == 0) {
+                return response()->json(["error" => "No UPLOAD records found."]);
+            }
+            EnergyReading::where('source', "UPLOAD")->delete();
+            return response()->json(["success" => "ok", "message" => "Deleted {$count} uploaded records."]);
+        // } catch(Exception $e) {
+        //     return response()->json(["error" => "Cleanup failed. Please try again."]);
+        // }
+    })->name('readings.delete');
 });

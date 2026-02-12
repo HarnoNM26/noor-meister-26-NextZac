@@ -8,6 +8,7 @@ use App\Models\EnergyReading;
 use Carbon\Carbon;
 
 Route::get('/', function (Request $req) {
+    throw \Exception;
     $given = $req->all();
     $validator = Validator::make($req->all(), ["start" => "date|date_format:Y-m-d\TH:i:s.vp", "end" => "date|date_format:Y-m-d\TH:i:s.vp|after:start", "location" => "nullable|in:EE,LV,FI"]);
     if($validator->fails()) {
