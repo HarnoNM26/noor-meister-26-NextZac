@@ -114,8 +114,18 @@ Route::prefix('api')->group(function () {
             return response()->json(["status" => "ok", "entries" =>$query->get()]);
         }
 
-        $threecheap = EnergyReading::whereBetween('created_at', [$start ? new Carbon($start) : "2000-01-01T00:00:00Z", $end ? new Carbon($end) : "2999-01-01T00:00:00Z"])->where('location', $req->all()["location"])->orderBy('price_eur_mwh', 'asc')->take(3)->orderBy("created_at", 'asc')->get();
-        $threeexpensive = EnergyReading::whereBetween('created_at', [$start ? new Carbon($start) : "2000-01-01T00:00:00Z", $end ? new Carbon($end) : "2999-01-01T00:00:00Z"])->where('location', $req->all()["location"])->orderBy('price_eur_mwh', 'desc')->take(3)->orderBy("created_at", 'asc')->get();
+        $threecheap = EnergyReading::whereBetween('created_at', [$start ? new Carbon($start) : "2000-01-01T00:00:00Z", $end ? new Carbon($end) : "2999-01-01T00:00:00Z"])->where('location', $req->all()["location"])->orderBy('price_eur_mwh', 'asc');
+        $threeexpensive = EnergyReading::whereBetween('created_at', [$start ? new Carbon($start) : "2000-01-01T00:00:00Z", $end ? new Carbon($end) : "2999-01-01T00:00:00Z"])->where('location', $req->all()["location"])->orderBy('price_eur_mwh', 'desc');
+        if($threecheap->count() < 3) {
+            $threecheap = $threecheap->orderBy("created_at", 'asc')->get();
+        } else {
+            $threecheap = $threecheap->take(3)->orderBy("created_at", 'asc')->get();
+        }
+        if($threeexpensive->count() < 3) {
+            $threeexpensive = $threeexpensive->orderBy("created_at", 'asc')->get();
+        } else {
+            $threeexpensive = $threeexpensive->take(3)->orderBy("created_at", 'asc')->get();
+        }
         return response()->json(["cheapest" => $threecheap, "expensive" => $threeexpensive]);
     });
 });
