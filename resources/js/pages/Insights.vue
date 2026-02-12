@@ -37,6 +37,7 @@ const sendForm = async () => {
     await axios.get("/api/insights/prices", {params: data}).then(response => {
         cheapest.value = [];
         expensive.value = [];
+        message.value = "";
         for (const [key, value] of Object.entries(response.data)) {
             if (key == "error") {
                 message.value = "Price API Unavailable";
@@ -47,6 +48,9 @@ const sendForm = async () => {
             if (key == "expensive") {
                 expensive.value.push(value);
             }
+        }
+        if(expensive.value.length && cheapest.value.length) {
+            message.value = "No price data.";
         }
         processing.value = false;
     }).catch((e) => {
@@ -63,27 +67,6 @@ const sendForm = async () => {
                 message.value = "";
             }
             processing.value = false;
-        }
-    });
-}
-
-const deleteData = async () => {
-    processing_delete.value = true;
-    await axios.delete("/api/readings").then(response => {
-        for (const [key, value] of Object.entries(response.data)) {
-            if (key == "error") {
-                message_delete.value = value;
-            }
-            if (key == "message") {
-                message_delete.value = value;
-            }
-        }
-
-        processing_delete.value = false;
-    }).catch((e) => {
-        const erresp = e.response;
-        for (const [key, value] of Object.entries(erresp.data)) {
-            processing_delete.value = false;
         }
     });
 }
@@ -128,6 +111,7 @@ const deleteData = async () => {
                     <Spinner v-if="processing" />
                     Sync
                 </Button>
+                <h2> {{ message }}</h2>
                 <div class="grid grid-cols-2">
                 <div v-if="cheapest.length > 0">
                     <h2 class="mt-10">Cheapest Times:</h2>
