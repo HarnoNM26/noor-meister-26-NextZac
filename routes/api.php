@@ -19,6 +19,8 @@ Route::prefix('api')->group(function () {
         return response()->json(["status" => "ok", "db" => "ok"]);
     });
     Route::get('/readings', function (Request $req) {
+        $start = new Carbon()->startOfDay()->format("Y-m-d\TH:i:sp");
+        $end = new Carbon()->startOfDay()->modify("+1 day -1 microsecond")->format("Y-m-d\TH:i:sp");
         $validator = Validator::make($req->all(), ["start" => "date|date_format:Y-m-d\TH:i:sp", "end" => "date|date_format:Y-m-d\TH:i:sp", "location" => "required|in:EE,LV,FI"]);
         if($validator->fails()) {
             return response()->json(["status" => "fail", "message" => $validator->errors()]);
@@ -32,7 +34,6 @@ Route::prefix('api')->group(function () {
         if(array_key_exists("end", $req->all())) {
             $end = $req->all()["end"];
         }
-
         $entries = EnergyReading::whereBetween('created_at', [$start ? new Carbon($start) : "2000-01-01T00:00:00Z", $end ? new Carbon($end) : "2999-01-01T00:00:00Z"])->where('location', $req->all()["location"])->get();
         return response()->json(["status" => "ok", "entries" => $entries]);
     });
