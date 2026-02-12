@@ -49,7 +49,7 @@ const sendForm = async () => {
                 expensive.value.push(value);
             }
         }
-        if(expensive.value.length && cheapest.value.length) {
+        if(expensive.value.length == 0 && cheapest.value.length == 0) {
             message.value = "No price data.";
         }
         processing.value = false;
