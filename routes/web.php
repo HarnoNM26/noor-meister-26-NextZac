@@ -29,6 +29,10 @@ Route::get('/', function (Request $req) {
     return Inertia::render('Dashboard', ['daily' => $dailyavg, "location" => $location ?? $dailyavg, "date" => $date ?? $dailyavg]);
 })->name('dashboard');
 
+Route::get("/home", function() {
+    return redirect(route("dashboard"));
+})->name("home");
+
 Route::get('/sync', function (Request $req) {
     return Inertia::render('Sync');
 })->name('sync');
