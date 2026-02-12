@@ -36,7 +36,8 @@ for (const [key, value] of Object.entries(props.date)) {
   date.setMinutes(date.getMinutes() + 10)
   data3.push({ "start": value.created_at, "end": date.toISOString(), price: value.price_eur_mwh })
 }
-console.log(props.location)
+console.log(props.daily)
+console.log(data3)
 
 const seriesList = data.map(function (event) {
   let start = event.start;

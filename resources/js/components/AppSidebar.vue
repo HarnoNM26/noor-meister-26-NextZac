@@ -28,6 +28,11 @@ const mainNavItems: NavItem[] = [
         href: "/sync",
         icon: LayoutGrid,
     },
+    {
+        title: 'Insights',
+        href: "/insights",
+        icon: LayoutGrid,
+    },
 ];
 
 const footerNavItems: NavItem[] = [

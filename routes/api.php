@@ -89,4 +89,33 @@ Route::prefix('api')->group(function () {
         //     return response()->json(["error" => "Cleanup failed. Please try again."]);
         // }
     })->name('readings.delete');
+    Route::get('/insights/prices', function (Request $req) {
+        $start = new Carbon()->startOfDay()->format("Y-m-d\TH:i:sp");
+        $end = new Carbon()->startOfDay()->modify("+1 day -1 microsecond")->format("Y-m-d\TH:i:sp");
+        $validator = Validator::make($req->all(), ["start" => "date|date_format:Y-m-d\TH:i", "end" => "date|date_format:Y-m-d\TH:i", "location" => "required|in:EE,LV,FI"]);
+        if($validator->fails()) {
+            return response()->json(["status" => "fail", "message" => $validator->errors()]);
+        }
+        if (array_key_exists("start", $req->all())) {
+            if ($req->all()['start'] != null) {
+                $start = new Carbon($req->all()["start"])->format("Y-m-d\TH:i:sp");
+            }
+        }
+        if (array_key_exists("end", $req->all())) {
+            if ($req->all()['end'] != null) {
+                $end = new Carbon($req->all()["end"])->format("Y-m-d\TH:i:sp");
+            }
+        }
+        $query = EnergyReading::whereBetween('created_at', [$start ? new Carbon($start) : "2000-01-01T00:00:00Z", $end ? new Carbon($end) : "2999-01-01T00:00:00Z"])->where('location', $req->all()["location"]);
+        $avg_price = $query->avg('price_eur_mwh');
+        $min = $query->min('price_eur_mwh');
+        $max = $query->max('price_eur_mwh');
+        if($query->count() < 3) {
+            return response()->json(["status" => "ok", "entries" =>$query->get()]);
+        }
+
+        $threecheap = EnergyReading::whereBetween('created_at', [$start ? new Carbon($start) : "2000-01-01T00:00:00Z", $end ? new Carbon($end) : "2999-01-01T00:00:00Z"])->where('location', $req->all()["location"])->orderBy('price_eur_mwh', 'asc')->take(3)->orderBy("created_at", 'asc')->get();
+        $threeexpensive = EnergyReading::whereBetween('created_at', [$start ? new Carbon($start) : "2000-01-01T00:00:00Z", $end ? new Carbon($end) : "2999-01-01T00:00:00Z"])->where('location', $req->all()["location"])->orderBy('price_eur_mwh', 'desc')->take(3)->orderBy("created_at", 'asc')->get();
+        return response()->json(["cheapest" => $threecheap, "expensive" => $threeexpensive]);
+    });
 });
