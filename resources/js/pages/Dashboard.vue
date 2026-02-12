@@ -2,16 +2,57 @@
 import { Head, Form, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import { dashboard } from '@/routes';
-import {ref} from 'vue';
+import {ref, provide} from 'vue';
 import axios from 'axios';
 import { type BreadcrumbItem } from '@/types';
 import PlaceholderPattern from '../components/PlaceholderPattern.vue';
 import { Button } from '@/components/ui/button';
 import { Spinner } from '@/components/ui/spinner';
-import { DoughnutChart } from 'vue-chart-3';
-import { Chart, registerables } from 'chart.js';
+import { use } from "echarts/core";
+import { CanvasRenderer } from "echarts/renderers";
+import { LineChart } from "echarts/charts";
+import { TitleComponent, TooltipComponent, LegendComponent, GridComponent } from "echarts/components";
+import VChart, { THEME_KEY } from "vue-echarts";
 
-Chart.register(...registerables);
+
+use([CanvasRenderer, LineChart, TitleComponent, TooltipComponent, LegendComponent, GridComponent]);
+const data = []
+
+const props = defineProps({daily: Object})
+for (const [key, value] of Object.entries(props.daily)) {
+    const date = new Date(value.created_at)
+    date.setMinutes(date.getMinutes() + 10)
+    data.push({"start": value.created_at, "end": date.toISOString(), price: value.price_eur_mwh})
+}
+console.log(data)
+
+const seriesList = data.map(function(event) {
+  let start = event.start;
+  let end = event.end;
+  let value = event.price;
+  if (event.end === null) {
+    end = start;  // set end to current time here?
+  }
+  return {
+    type: 'line',
+    data: [[start, value], [end, value]],
+    symbol: 'none',
+    lineStyle: {
+      width: 60
+    }
+  };
+})
+
+const option = ref({
+  xAxis: {
+    type: 'time',
+  },
+  yAxis: {
+    type: 'value',
+    show: true,
+  },
+  series: seriesList
+});
 
 const breadcrumbs: BreadcrumbItem[] = [
     {
@@ -19,27 +60,6 @@ const breadcrumbs: BreadcrumbItem[] = [
         href: dashboard().url,
     },
 ];
-
-const testData = {
-      labels: ['Paris', 'Nîmes', 'Toulon', 'Perpignan', 'Autre'],
-      datasets: [
-        {
-          data: [30, 40, 60, 70, 5],
-          backgroundColor: ['#77CEFF', '#0079AF', '#123E6B', '#97B0C4', '#A5C8ED'],
-        },
-      ],
-    };
-
-const chartOptions = ref({
-  responsive: true,
-  maintainAspectRatio: true,
-  plugins: {
-    legend: {
-      display: false,
-    },
-  },
-});
-
 const date = new Date()
 const location = ref('EE');
 const start = ref(null);
@@ -50,39 +70,11 @@ const errors = ref({
     start: "",
     end: ""
 })
-const sendForm = async () => {
-    processing.value = true;
-     const data = {
-        location: location.value,
-        start: start.value,
-        end: end.value
-     }
-    await axios.post("/api/sync/prices", data).then(response => {
-        for (const [key, value] of Object.entries(response.data)) {
-            if(key == "error") {
-                 message.value = "Price API Unavailable";
-            }
-            if(key=="message") {
-                message.value = "Successsfully synced with Elering API - " + value
-            }
-        }
-        
-        processing.value = false;
-    }).catch((e) => {
-        const erresp = e.response;
-       for (const [key, value] of Object.entries(erresp.data)) {
-        if(key == 'start') {
-            errors.value.start = value;
-            message.value = "";
-            console.log(errors.value);
-        }
-        if(key == 'end') {
-            errors.value.end = value;
-            message.value = "";
-        }
-        processing.value = false;
-        }   
-    });
+const changeLocation = () => {
+window.location.href = `/?location=${location.value}`
+}
+const changeDate = (start, end) => {
+window.location.href = `/?start=${start}&end=${end}`
 }
 
 </script>
@@ -98,6 +90,13 @@ const sendForm = async () => {
                 <div
                     class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border p-6"
                 >
+                <h2>Daily Energy Price</h2>
+                <VChart class="chart" :option="option" />
+            </div>
+            <div
+                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border p-6"
+                >
+                <h2>Filtered Energy Price</h2>
                 <div class="grid grid-cols-2 gap-2">
                 <div >
                     <Label for="start">Start</Label>
@@ -129,9 +128,49 @@ const sendForm = async () => {
                     />
                     <h2 v-html="errors.end" class="mt-2" ></h2>
                 </div>
+                
                 </div>
-                <DoughnutChart :chartData="testData" />
+                <Button
+                    type="submit"
+                    class="mt-2 w-full border border-black"
+                    tabindex="5"
+                    :disabled="processing"
+                    data-test="register-user-button"
+                    @click="changeDate(start, end)"
+                >
+                    <Spinner v-if="processing" />
+                    Sync
+                </Button>
+                <VChart class="chart" :option="option" />
             </div>
+             <div
+                    class="relative aspect-video overflow-hidden rounded-xl border border-sidebar-border/70 dark:border-sidebar-border p-6"
+                >
+                <h2>Filtered Energy Price</h2>
+                <div class="grid grid-cols-2 gap-2">
+                <div class="grid gap-2">
+                    <Label for="location">Location</Label>
+                    <select name="location" id="location" v-model="location">
+                        <option value="EE">EE</option>
+                        <option value="LV">LV</option>
+                        <option value="FI">FI</option>
+                    </select>
+                </div>
+                </div>
+                <Button
+                    type="submit"
+                    class="mt-2 w-full border border-black"
+                    tabindex="5"
+                    :disabled="processing"
+                    data-test="register-user-button"
+                    @click="changeLocation"
+                >
+                    <Spinner v-if="processing" />
+                    Sync
+                </Button>
+                <VChart class="chart" :option="option" />
+            </div>
+            
         </div>
     </AppLayout>
 </template>

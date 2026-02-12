@@ -41,17 +41,16 @@ Route::prefix('api')->group(function () {
         $validator = Validator::make($args, ["start" => "date|nullable", "end" => "date|nullable",]);
         $start = new Carbon()->startOfDay()->format("Y-m-d\TH:i:sp");
         $end = new Carbon()->startOfDay()->modify("+1 day -1 microsecond")->format("Y-m-d\TH:i:sp");
-        if(array_key_exists("start", $req->all())) {
+        if($req->all()['start'] != null) {
             $start = new Carbon($args["start"])->format("Y-m-d\TH:i:sp");
         }
-        if(array_key_exists("end", $req->all())) {
+        if($req->all()['end'] != null) {
             $end =  new Carbon($args["end"])->format("Y-m-d\TH:i:sp");
         }
         if($validator->fails()) {
             return response()->json($validator->errors(), 422);
         }
         try {
-            dd($start, $end);
         $json = json_decode(file_get_contents("https://dashboard.elering.ee/api/nps/price?start={$start}&end={$end}"));
         } catch(Exception $e) {
            return response()->json(["error" => "PRICE_API_UNAVAILABLE"]);
